@@ -46,28 +46,24 @@ namespace ShopList
             if (File.Exists(StorePath + "Shopping List.txt"))  //if there is a shopping list
                 File.Delete(StorePath + "Shopping List.txt");  //already, delete it.
 
-Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
+            Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
+            Budget = 30;
+            Console.WriteLine("Your shopping budget is $" + Budget.ToString());
 
-            string input;  //used for several text inputs
-            do
-            {
-                Console.Write("How much do you want to spend?  ");
-                input = Console.ReadLine();  //get a number for budget 
-            } while (Double.TryParse(input, out Budget) == false);  //keep looping until numeric input 
+            BusinessName = "SHOPPING LIST FOR ";
 
-            BusinessName = GetBizNames();  //determine who we're shopping for 
-
-            Console.Write("\nOn which date are you shopping?  ");
-            ShopDate = Console.ReadLine();  //get date to shop
+            DateTime today = DateTime.Today;
+            DateTime closestMonday = GetClosestMonday(today);
+            ShopDate = closestMonday.ToShortDateString();
 
             StreamWriter bn = File.AppendText(StorePath + "Shopping List.txt");  //write business name and
-            bn.WriteLine(BusinessName + " " + ShopDate);  //date to top of file 
+            bn.WriteLine("\n" + BusinessName + " " + ShopDate);  //date to top of file 
             bn.WriteLine();
             bn.Close();  //close file
 
             Console.WriteLine("\nFor each store, you will be asked if you need"); 
-            Console.WriteLine("to get things from there.  Use Y or N.");
-            Console.WriteLine("The entire list will be put into notepad for printing.");
+            Console.WriteLine("to get things from there.  The entire list will be");
+            Console.WriteLine("saved as a text file, and added to your weekly order.");
 
             Console.WriteLine("\nWhile shopping, use the following:");
             Console.WriteLine("0 to 99 - quantity to purchase");
@@ -81,7 +77,7 @@ Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
 
                 Console.WriteLine();  //ask user if items needed from loaded store
                 Console.Write("Do you need items at " + StoreName + "?  (Y or N)  ");
-                input = Console.ReadLine();  //read a line from keyboard
+                String input = Console.ReadLine();  //read a line from keyboard
                 if (input.ToUpper().Equals("Y"))  //if first letter is Y
                 {
                     GetValues();  //asks how many of each product to buy
@@ -119,12 +115,17 @@ Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
             Console.WriteLine();  //print same info sent to file to screen
             Console.WriteLine("The entire list contains " + AllItems + " items for $" + AllTotal);
             Console.WriteLine("The list is" + UnderOver + "the $" + Budget + " budget by $" + BudgetDiff.ToString("n2"));
-            Console.WriteLine();
+            Console.WriteLine("\nYour shopping list has been saved.  Now, run the");
+            Console.WriteLine("Brew for You Order Creation Tool.  Press a key to continue...");
+            Console.ReadKey();
+        }
 
-            Console.WriteLine("Press a key to exit and see the list using notepad.");
-            Console.ReadKey();  //wait for any keypress
+        static DateTime GetClosestMonday(DateTime date)
+        {
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)date.DayOfWeek + 7) % 7;
+            int daysSinceMonday = ((int)date.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
 
-            System.Diagnostics.Process.Start(@StorePath + "Shopping List.txt");
+            return date.AddDays(daysUntilMonday);
         }
 
         static void GetTotals()  //get total cost of all desired items
@@ -152,45 +153,6 @@ Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
                 Console.WriteLine("Grand Total so far:  $" + AllTotal.ToString("n2"));
                 Console.WriteLine("  Remaining Budget:  $" + (Budget - AllTotal).ToString("n2"));
             }
-        }
-
-        public static string GetBizNames()  //pick a business to shop for 
-        {
-            string[] GBN = new string[9];  //holds list of names in a file
-            string line, bin;  //for taking inputs 
-            int count=0, sel = 0;  //number of lines, selected index 
-            bool ValidInput = false;  
-
-            Console.WriteLine("\nWhich business are you shopping for?");
-            StreamReader sr = new StreamReader(StorePath + "\\BusinessNames.txt");  //open file read 
-            while (!sr.EndOfStream)  //loop until end of file
-            {
-                line = sr.ReadLine();  //read a line from file 
-                GBN[count] = line;  //store it 
-                Console.WriteLine("     " + count + " - " + GBN[count]);  //print index and line 
-                count++;  //count lines 
-            }
-
-            sr.Close(); //close file 
-            count--;  //count is at end of loop have to take 1 away 
-
-            while (!ValidInput) //==true 
-            {
-                Console.Write("Make a selection (0 to " + count + ")  ");
-                bin = Console.ReadLine();  //get a number 
-                bool ValidRange = int.TryParse(bin, out sel);
-
-                if ((sel < 0) || (sel > count))  //value out of range 
-                {
-                    ValidInput = false;
-                }
-                else
-                {
-                    //ValidInput = true;
-                    return GBN[sel];
-                }
-            }
-            return null;
         }
 
         static void GetValues()  //gets how many of each product to buy
@@ -249,5 +211,6 @@ Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
                     NumItems++;  //count number of lines
                 }
             }
+
     } //end class
 }     //end namespace
