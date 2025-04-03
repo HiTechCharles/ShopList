@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.IO;  //for streamreader/writer
 namespace ShopList
 {
@@ -41,15 +42,21 @@ namespace ShopList
 
         static void Main()  //entry point of program 
         {
-            Console.Title = "ShopList by Charles Martin";  //change window title
+            // Get all command-line arguments
+            string[] cmdArgs = Environment.GetCommandLineArgs();
 
+            // Check if the parameter '-p' exists
+            if (Array.Exists(cmdArgs, arg => arg == "-p"))
+            {
+                StorePath = Environment.CurrentDirectory +  "\\shoplist\\";
+            }
+
+            Console.Title = "BFY Shopping List";  //change window title
+            Console.ForegroundColor = ConsoleColor.White;  //text color for console
             if (File.Exists(StorePath + "Shopping List.txt"))  //if there is a shopping list
                 File.Delete(StorePath + "Shopping List.txt");  //already, delete it.
 
-            Console.WriteLine("Welcome to ShopList! by Charles Martin\n");
-            Budget = 30;
-            Console.WriteLine("Your shopping budget is $" + Budget.ToString());
-
+            Budget = 30;  //shopping budget, used to be a prompt for the value
             BusinessName = "SHOPPING LIST FOR ";
 
             DateTime today = DateTime.Today;
@@ -61,16 +68,20 @@ namespace ShopList
             bn.WriteLine();
             bn.Close();  //close file
 
-            Console.WriteLine("\nFor each store, you will be asked if you need"); 
-            Console.WriteLine("to get things from there.  The entire list will be");
-            Console.WriteLine("saved as a text file, and added to your weekly order.");
+            Console.WriteLine("This is the Brew for You Shopping List maker.");
+            Console.WriteLine("This program creates a list with the items you");
+            Console.WriteLine("need, along with number of items, and total cost.\n");
+            Console.WriteLine("For each store, you will be asked if you need"); 
+            Console.WriteLine("to shop there.  The entire list will be saved");
+            Console.WriteLine("as a text file, and added to your weekly order.");
 
             Console.WriteLine("\nWhile shopping, use the following:");
             Console.WriteLine("0 to 99 - quantity to purchase");
             Console.WriteLine("   skip - all done at current store");
             Console.WriteLine(("   prev - go to previous item\n"));
+            Console.WriteLine("Your shopping budget is $" + Budget.ToString() + "\n");
 
-             foreach (string file in Directory.EnumerateFiles
+            foreach (string file in Directory.EnumerateFiles
                (@StorePath + "Stores", "*.csv"))  //loop through all csv files in stores directory
             {
                 LoadFile(file);  //load csv file into arrays name,qty,price
@@ -164,10 +175,10 @@ namespace ShopList
                 {
                     do
                     {
-                    Console.Write(Name[I] + " - ");
-                    input = Console.ReadLine();  //get a number
+                        Console.Write(Name[I] + " - ");
+                        input = Console.ReadLine();  //get a number
 
-                    #region word matching
+                        #region word matching
                     if (input == "skip" )  //do actions on certain words 
                     {
                         Console.WriteLine("Skipping the remaining items from " + StoreName);
@@ -179,8 +190,14 @@ namespace ShopList
                         I--;
                     }
                     #endregion
-                } while (Double.TryParse(input, out QtySelected[I]) == false);
+                    } while (Double.TryParse(input, out QtySelected[I]) == false);
+
+                if (QtySelected[I] < 0 || QtySelected[I] > 9)
+                {
+                    I--;
                 }
+
+            }
             }
 
         static void LoadFile(string FileName)  //read a csv file
