@@ -192,7 +192,7 @@ namespace ShopList
                     #endregion
                     } while (Double.TryParse(input, out QtySelected[I]) == false);
 
-                if (QtySelected[I] < 0 || QtySelected[I] > 9)
+                if (QtySelected[I] < 0 || QtySelected[I] > 99)
                 {
                     I--;
                 }
